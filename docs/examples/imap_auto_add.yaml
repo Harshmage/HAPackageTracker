@@ -1,0 +1,114 @@
+# Auto-add packages from shipping e-mails with the IMAP integration.
+#
+# How it works
+#   1. The IMAP integration (Settings -> Devices & services -> Add integration -> IMAP)
+#      watches a mailbox and fires an `imap_content` event for each new message.
+#   2. This automation filters on the subject, runs package_tracker.extract_tracking_numbers
+#      on the message text, and adds every confident, not-yet-tracked number with
+#      package_tracker.add_package.
+#
+# IMAP setup notes (HA 2026.x)
+#   * `trigger.event.data.text` is only present when the IMAP entry is configured to include
+#     the message text: IMAP entry -> Configure -> "Message data to be included in the
+#     imap_content event data" -> tick "text". New IMAP entries do NOT include it by default.
+#   * The event text is cut to the entry's "Max message size" (default 2048 characters;
+#     raise it to up to 30000 in the same options dialog, advanced mode). Shipping e-mails
+#     often put the tracking number near the end, so either raise the limit or let the
+#     automation fetch the full message: when the event has no text, the `imap.fetch`
+#     action below reads the whole body by uid. To ALWAYS fetch the full body, replace the
+#     `if:` condition with `"{{ true }}"`.
+#   * A narrow IMAP search (for example `UnSeen SUBJECT "shipped"`, or a dedicated folder
+#     your mail rules file shipping notices into) keeps unrelated mail out entirely.
+#
+# Privacy: service call data is written to the recorder, so the e-mail text passed to
+# extract_tracking_numbers ends up in your Home Assistant database (as part of the
+# call_service event) until the recorder purges it. The IMAP event itself is recorded too
+# when it includes text. Exclude the events if you mind:
+#
+#   recorder:
+#     exclude:
+#       event_types:
+#         - imap_content
+#         - call_service   # note: hides ALL service calls from the logbook/history
+#
+# Paste the item below into automations.yaml, or into the YAML editor of a new automation
+# (without the leading "- ").
+
+- id: package_tracker_imap_auto_add
+  alias: "Packages: add tracking numbers from shipping e-mails"
+  description: >-
+    Scans new e-mails that look like shipping notices for tracking numbers and adds them to
+    Package Tracker.
+  mode: queued
+  max: 20
+  triggers:
+    - trigger: event
+      event_type: imap_content
+  conditions:
+    # Only the first time a message is seen (re-sent events have initial: false).
+    - condition: template
+      value_template: "{{ trigger.event.data.initial }}"
+    - condition: template
+      value_template: >-
+        {{ trigger.event.data.subject is search(
+             'ship|track|deliver|dispatch|on (its|the) way|out for delivery|order.*sent',
+             ignorecase=True) }}
+  actions:
+    - if:
+        - condition: template
+          value_template: "{{ not trigger.event.data.get('text') }}"
+      then:
+        # The event carries no text: fetch the full message body from the server.
+        - action: imap.fetch
+          data:
+            entry: "{{ trigger.event.data.entry_id }}"
+            uid: "{{ trigger.event.data.uid }}"
+          response_variable: message
+        - variables:
+            email_text: "{{ message.text }}"
+      else:
+        - variables:
+            email_text: "{{ trigger.event.data.text }}"
+
+    - action: package_tracker.extract_tracking_numbers
+      data:
+        text: "{{ email_text }}"
+      response_variable: found
+
+    - repeat:
+        # Each result: tracking_number, carrier, carrier_name, service, confidence,
+        # checksum_valid, source, candidates, tracking_url, already_tracked, package_id,
+        # context. 0.8 is the same threshold the card uses to pre-select results.
+        for_each: >-
+          {{ found.results
+             | rejectattr('already_tracked')
+             | selectattr('confidence', 'ge', 0.8)
+             | list }}
+        sequence:
+          - action: package_tracker.add_package
+            # A number that is already tracked or in the history raises an error; skip it
+            # and carry on with the rest instead of stopping the automation.
+            continue_on_error: true
+            data:
+              tracking_number: "{{ repeat.item.tracking_number }}"
+              carrier: "{{ repeat.item.carrier }}"
+              description: "{{ trigger.event.data.subject[:100] }}"
+              vendor: >-
+                {{ trigger.event.data.sender | regex_replace('\\s*<[^>]*>\\s*$', '')
+                   | replace('\"', '') | trim }}
+
+    - if:
+        - condition: template
+          value_template: >-
+            {{ found.results | rejectattr('already_tracked')
+               | selectattr('confidence', 'ge', 0.8) | list | count > 0 }}
+      then:
+        - action: persistent_notification.create
+          data:
+            notification_id: package_tracker_imap
+            title: "Tracking numbers found in e-mail"
+            message: |-
+              From "{{ trigger.event.data.subject }}":
+              {%- for r in found.results if not r.already_tracked and r.confidence >= 0.8 %}
+              - {{ r.carrier_name }} {{ r.tracking_number }}
+              {%- endfor %}

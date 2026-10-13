@@ -1,0 +1,19 @@
+From: UPS Quantum View <mcinfo@ups.com>
+Subject: UPS Update: Package Scheduled for Delivery Tuesday, 10/13/2026
+
+Hello, your package is on the way.
+
+Scheduled Delivery: Tuesday, 10/13/2026 by 7:00 PM
+Shipped From: EXAMPLE OUTFITTERS, CHICAGO, IL 60601-1234
+Number of Packages: 1
+UPS Service: UPS Ground
+Weight: 2.4 LBS
+Reference Number 1: 5550001234
+Reference Number 2: PO-88812345
+Tracking Number: 1Z999AA10123456784
+
+Track your package:
+https://www.ups.com/track?loc=en_US&tracknum=1Z999AA10123456784&requester=QVD/trackdetails
+
+Questions? Call UPS at 1-800-742-5877.
+(c) 2026 United Parcel Service of America, Inc.

@@ -1,0 +1,20 @@
+USPS Informed Delivery® Daily Digest
+Monday, October 12, 2026
+
+COMING TO YOUR MAILBOX SOON
+
+From: EXAMPLE OUTFITTERS
+USPS Tracking®: 9400 1096 9993 9938 2235 64
+Expected Delivery: Tuesday, 10/13/2026
+
+From: ACME SUPPLY
+Tracking Number: 9205590164917312751089
+Expected Delivery: Wednesday, 10/14/2026 by 9:00pm
+
+From: WIDGETCO (scanned label)
+Package tracking: 420221539101026837331000039521
+Status: In Transit
+
+Manage your packages:
+https://informeddelivery.usps.com/box/pages/secure/DashboardAction_input.action?selectedTab=packages
+To ensure delivery of our emails, add USPSInformeddelivery@email.informeddelivery.usps.com to your address book.

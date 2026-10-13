@@ -1,0 +1,18 @@
+# Tooling config only: this repo ships a Home Assistant custom integration, not a pip package.
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+extend-exclude = ["dev-config"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF", "ASYNC", "PTH"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["custom_components"]
+force-sort-within-sections = true
+combine-as-imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]

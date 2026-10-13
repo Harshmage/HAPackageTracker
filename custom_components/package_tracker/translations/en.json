@@ -1,0 +1,296 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Package Tracker",
+        "description": "Track parcels by tracking number with carrier links, expected dates and overdue alerts. No carrier accounts are needed."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Package Tracker is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Package Tracker options",
+        "data": {
+          "notify_time": "Daily digest time",
+          "notify_on": "Notify about",
+          "notify_entities": "Notify entities",
+          "notify_services": "Legacy notify services",
+          "persistent_notification": "Show a persistent notification",
+          "remind_overdue_daily": "Remind about overdue packages every day",
+          "archive_after_days": "Archive arrived packages after (days)",
+          "purge_after_days": "Delete archived packages after (days)",
+          "fallback_tracker": "Fallback tracking site"
+        },
+        "data_description": {
+          "notify_time": "When the daily digest of packages due today and overdue is sent.",
+          "notify_on": "Which events trigger notifications.",
+          "notify_entities": "Notify entities that receive the digest (links are included in the message).",
+          "notify_services": "Legacy notify services such as mobile_app_phone; tapping the notification opens the tracking page.",
+          "persistent_notification": "Also show the digest as a notification in Home Assistant.",
+          "remind_overdue_daily": "Without this, each overdue package is announced once.",
+          "archive_after_days": "0 keeps arrived packages in the list until archived manually.",
+          "purge_after_days": "0 keeps history forever.",
+          "fallback_tracker": "Universal tracking site offered for every package, useful for unknown and international numbers."
+        }
+      }
+    }
+  },
+  "selector": {
+    "carrier": {
+      "options": {
+        "auto": "Auto-detect",
+        "ups": "UPS",
+        "usps": "USPS",
+        "fedex": "FedEx",
+        "dhl": "DHL",
+        "amazon": "Amazon Logistics",
+        "ontrac": "OnTrac",
+        "canada_post": "Canada Post",
+        "royal_mail": "Royal Mail",
+        "australia_post": "Australia Post",
+        "deutsche_post": "Deutsche Post",
+        "la_poste": "La Poste",
+        "japan_post": "Japan Post",
+        "china_post": "China Post",
+        "india_post": "India Post",
+        "postnl": "PostNL",
+        "intl_post": "International Post",
+        "unknown": "Unknown carrier"
+      }
+    },
+    "notify_on": {
+      "options": {
+        "due_today": "Packages due today",
+        "overdue": "Overdue packages",
+        "arrived": "Package marked as arrived"
+      }
+    },
+    "fallback_tracker": {
+      "options": {
+        "none": "None",
+        "17track": "17TRACK",
+        "parcelsapp": "Parcels app"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active": {
+        "name": "Active packages",
+        "unit_of_measurement": "packages",
+        "state_attributes": {
+          "packages": {
+            "name": "Packages"
+          }
+        }
+      },
+      "overdue": {
+        "name": "Overdue packages",
+        "unit_of_measurement": "packages",
+        "state_attributes": {
+          "packages": {
+            "name": "Packages"
+          }
+        }
+      },
+      "due_today": {
+        "name": "Packages due today",
+        "unit_of_measurement": "packages",
+        "state_attributes": {
+          "packages": {
+            "name": "Packages"
+          }
+        }
+      },
+      "next_delivery": {
+        "name": "Next delivery",
+        "state_attributes": {
+          "packages": {
+            "name": "Packages"
+          }
+        }
+      }
+    },
+    "calendar": {
+      "deliveries": {
+        "name": "Deliveries"
+      }
+    }
+  },
+  "exceptions": {
+    "not_loaded": {
+      "message": "Package Tracker is not set up or not loaded."
+    },
+    "package_not_found": {
+      "message": "No package matches {target}."
+    },
+    "duplicate_package": {
+      "message": "Tracking number {tracking_number} is already being tracked."
+    },
+    "in_history": {
+      "message": "Tracking number {tracking_number} is in the history. Restore it instead of adding it again."
+    },
+    "invalid_date_range": {
+      "message": "The end of the delivery window must be on or after the expected date."
+    },
+    "invalid_tracking_number": {
+      "message": "That does not look like a tracking number."
+    }
+  },
+  "services": {
+    "add_package": {
+      "name": "Add package",
+      "description": "Starts tracking a package. The carrier is detected from the tracking number unless given.",
+      "fields": {
+        "tracking_number": {
+          "name": "Tracking number",
+          "description": "Tracking number or a carrier tracking link."
+        },
+        "carrier": {
+          "name": "Carrier",
+          "description": "Carrier, or auto to detect it from the tracking number."
+        },
+        "description": {
+          "name": "Description",
+          "description": "What is in the package."
+        },
+        "vendor": {
+          "name": "Vendor",
+          "description": "Store or sender."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Free-form notes."
+        },
+        "expected_date": {
+          "name": "Expected date",
+          "description": "Expected delivery date (or the first day of the delivery window)."
+        },
+        "expected_date_end": {
+          "name": "Expected date (end)",
+          "description": "Last day of the delivery window, if the carrier gave a range."
+        },
+        "tracking_url": {
+          "name": "Tracking link",
+          "description": "Custom http(s) tracking link that overrides the carrier link."
+        }
+      }
+    },
+    "update_package": {
+      "name": "Update package",
+      "description": "Changes a package. When the package ID is given, the tracking number field sets a new number.",
+      "fields": {
+        "package_id": {
+          "name": "Package ID",
+          "description": "ID of the package. Use this or the tracking number."
+        },
+        "tracking_number": {
+          "name": "Tracking number",
+          "description": "Tracking number of the package. Use this or the package ID."
+        },
+        "carrier": {
+          "name": "Carrier",
+          "description": "New carrier, or auto to detect it again."
+        },
+        "description": {
+          "name": "Description",
+          "description": "What is in the package. Leave empty (null) to clear."
+        },
+        "vendor": {
+          "name": "Vendor",
+          "description": "Store or sender. Leave empty (null) to clear."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Free-form notes. Leave empty (null) to clear."
+        },
+        "expected_date": {
+          "name": "Expected date",
+          "description": "Expected delivery date (or the first day of the delivery window). Leave empty (null) to clear."
+        },
+        "expected_date_end": {
+          "name": "Expected date (end)",
+          "description": "Last day of the delivery window, if the carrier gave a range. Leave empty (null) to clear."
+        },
+        "tracking_url": {
+          "name": "Tracking link",
+          "description": "Custom http(s) tracking link that overrides the carrier link. Leave empty (null) to clear."
+        }
+      }
+    },
+    "mark_arrived": {
+      "name": "Mark arrived",
+      "description": "Marks a package as arrived, or clears the mark.",
+      "fields": {
+        "package_id": {
+          "name": "Package ID",
+          "description": "ID of the package. Use this or the tracking number."
+        },
+        "tracking_number": {
+          "name": "Tracking number",
+          "description": "Tracking number of the package. Use this or the package ID."
+        },
+        "arrived": {
+          "name": "Arrived",
+          "description": "Turn off to mark the package as not arrived."
+        }
+      }
+    },
+    "archive_package": {
+      "name": "Archive package",
+      "description": "Moves a package to the history.",
+      "fields": {
+        "package_id": {
+          "name": "Package ID",
+          "description": "ID of the package. Use this or the tracking number."
+        },
+        "tracking_number": {
+          "name": "Tracking number",
+          "description": "Tracking number of the package. Use this or the package ID."
+        }
+      }
+    },
+    "restore_package": {
+      "name": "Restore package",
+      "description": "Moves a package from the history back to the list.",
+      "fields": {
+        "package_id": {
+          "name": "Package ID",
+          "description": "ID of the package. Use this or the tracking number."
+        },
+        "tracking_number": {
+          "name": "Tracking number",
+          "description": "Tracking number of the package. Use this or the package ID."
+        }
+      }
+    },
+    "remove_package": {
+      "name": "Remove package",
+      "description": "Deletes a package permanently.",
+      "fields": {
+        "package_id": {
+          "name": "Package ID",
+          "description": "ID of the package. Use this or the tracking number."
+        },
+        "tracking_number": {
+          "name": "Tracking number",
+          "description": "Tracking number of the package. Use this or the package ID."
+        }
+      }
+    },
+    "extract_tracking_numbers": {
+      "name": "Extract tracking numbers",
+      "description": "Finds tracking numbers in text, such as a shipping e-mail. Service data is recorded in history, so avoid passing private text you do not want stored.",
+      "fields": {
+        "text": {
+          "name": "Text",
+          "description": "Text to search (up to 100,000 characters are read)."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+DHL Express - Shipment Notification
+
+Dear Customer,
+
+Your shipment with waybill 3318810025 has been dispatched from Leipzig, DE.
+Shipper reference: 73891051146
+Pieces: 1   Weight: 0.5 kg
+Estimated delivery: 15.10.2026 by end of day
+
+Your parcel from our German warehouse ships with DHL Paket: JJD0099999999
+
+A small item was sent by registered mail: RR123456785GB (Royal Mail)
+
+For questions call +49 228 182 63 63.
+https://www.dhl.com/global-en/home/tracking/tracking-express.html?submit=1&tracking-id=3318810025

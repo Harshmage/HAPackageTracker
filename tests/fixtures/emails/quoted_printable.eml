@@ -1,0 +1,20 @@
+Return-Path: <shipping@example-outfitters.com>
+Received: from mail.example-outfitters.com (mail.example-outfitters.com [203.0.113.25])
+        by mx.example.net with ESMTPS id a1b2c3d4e5f6
+        for <bryan@example.net>; Mon, 12 Oct 2026 09:15:22 -0500
+Message-ID: <20261012141522.4F1A2B3C@mail.example-outfitters.com>
+Date: Mon, 12 Oct 2026 09:15:22 -0500
+From: Example Outfitters <shipping@example-outfitters.com>
+To: bryan@example.net
+Subject: Your order has shipped
+MIME-Version: 1.0
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+
+<html><body style=3D"margin:0">
+<p>Good news =E2=80=94 your order has shipped via UPS.</p>
+<p>Tracking number: <a href=3D"https://www.ups.com/track?loc=3Den_US&amp;tr=
+acknum=3D1Z12345E6605272234">1Z12345E66=
+05272234</a></p>
+<p>Expected delivery: Thursday, October 15</p>
+</body></html>

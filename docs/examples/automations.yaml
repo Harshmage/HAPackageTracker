@@ -1,0 +1,124 @@
+# Example automations for Package Tracker.
+#
+# Paste into automations.yaml (or the YAML editor of a new automation, one item at a time).
+# Replace notify.mobile_app_phone, media_player.kitchen and tts.home_assistant_cloud with
+# your own entities. Uses the current `triggers:` / `actions:` syntax (HA 2024.10+).
+#
+# Every package_tracker_* event carries:
+#   package_id, tracking_number, carrier, carrier_name, description, vendor,
+#   expected_date, expected_date_end, tracking_url, status
+# tracking_url is the carrier deep link, or the fallback tracker link, or null.
+#
+# The built-in daily digest (Settings -> Devices & services -> Package Tracker -> Configure)
+# already covers "due today" and "overdue" notifications; these automations are for when
+# you want something different, such as per-package messages, TTS or lights.
+
+# 1. Overdue alert: one push notification per package, the moment it becomes overdue
+#    (fires once per package, just after midnight, or when you set a past date).
+- id: package_tracker_overdue_alert
+  alias: "Packages: overdue alert"
+  mode: queued
+  triggers:
+    - trigger: event
+      event_type: package_tracker_overdue
+  actions:
+    - action: notify.mobile_app_phone
+      data:
+        title: "Package overdue"
+        message: >-
+          {{ trigger.event.data.description or trigger.event.data.tracking_number }}
+          ({{ trigger.event.data.carrier_name }}) was expected
+          {{ trigger.event.data.expected_date_end or trigger.event.data.expected_date }}.
+        data:
+          # Tapping the notification opens the tracking page (companion app).
+          url: "{{ trigger.event.data.tracking_url or '/lovelace' }}"
+          clickAction: "{{ trigger.event.data.tracking_url or '/lovelace' }}"
+
+# 2. Due today: a morning announcement on a speaker, plus a phone notification.
+#    Uses the sensor, so it also covers packages whose window started earlier.
+- id: package_tracker_due_today_announce
+  alias: "Packages: announce deliveries due today"
+  triggers:
+    - trigger: time
+      at: "08:30:00"
+  conditions:
+    - condition: numeric_state
+      entity_id: sensor.package_tracker_packages_due_today
+      above: 0
+  actions:
+    - variables:
+        packages: "{{ state_attr('sensor.package_tracker_packages_due_today', 'packages') or [] }}"
+        names: >-
+          {{ packages | map(attribute='description') | map('default', 'a package', true)
+             | list | join(', ') }}
+        count: "{{ states('sensor.package_tracker_packages_due_today') | int(0) }}"
+    - action: tts.speak
+      target:
+        entity_id: tts.home_assistant_cloud
+      data:
+        media_player_entity_id: media_player.kitchen
+        message: >-
+          {{ count }} {{ 'delivery is' if count == 1 else 'deliveries are' }}
+          expected today: {{ names }}.
+    - action: notify.mobile_app_phone
+      data:
+        title: "{{ count }} package{{ '' if count == 1 else 's' }} due today"
+        message: "{{ names }}"
+
+# 2b. Same idea, event-driven: one notification per package as it becomes due today.
+- id: package_tracker_due_today_notify
+  alias: "Packages: due today notification"
+  mode: queued
+  triggers:
+    - trigger: event
+      event_type: package_tracker_due_today
+  actions:
+    - action: notify.mobile_app_phone
+      data:
+        title: "Arriving today"
+        message: >-
+          {{ trigger.event.data.description or trigger.event.data.tracking_number }}
+          via {{ trigger.event.data.carrier_name }}
+          {%- if trigger.event.data.vendor %} from {{ trigger.event.data.vendor }}{% endif %}.
+        data:
+          url: "{{ trigger.event.data.tracking_url or '/lovelace' }}"
+          clickAction: "{{ trigger.event.data.tracking_url or '/lovelace' }}"
+
+# 3. Arrived: tell everyone when someone ticks "Arrived" in the card (or a script calls
+#    package_tracker.mark_arrived).
+- id: package_tracker_arrived_notify
+  alias: "Packages: arrived"
+  mode: queued
+  triggers:
+    - trigger: event
+      event_type: package_tracker_arrived
+  actions:
+    - action: notify.notify
+      data:
+        title: "Package arrived"
+        message: >-
+          {{ trigger.event.data.description or trigger.event.data.tracking_number }}
+          {%- if trigger.event.data.vendor %} from {{ trigger.event.data.vendor }}{% endif %}
+          has arrived.
+
+# 4. Doorbell helper: when a door sensor opens while something is due today, remind
+#    whoever is home to check the porch and offer to mark it arrived from the card.
+- id: package_tracker_porch_reminder
+  alias: "Packages: porch reminder"
+  triggers:
+    - trigger: state
+      entity_id: binary_sensor.front_door
+      to: "on"
+  conditions:
+    - condition: numeric_state
+      entity_id: sensor.package_tracker_packages_due_today
+      above: 0
+  actions:
+    - action: notify.mobile_app_phone
+      data:
+        title: "Package due today"
+        message: >-
+          Check the porch for:
+          {{ state_attr('sensor.package_tracker_packages_due_today', 'packages')
+             | map(attribute='description') | map('default', 'a package', true)
+             | join(', ') }}

@@ -1,0 +1,174 @@
+add_package:
+  fields:
+    tracking_number:
+      required: true
+      example: "1Z999AA10123456784"
+      selector:
+        text:
+    carrier:
+      default: auto
+      selector:
+        select:
+          translation_key: carrier
+          mode: dropdown
+          options:
+            - auto
+            - ups
+            - usps
+            - fedex
+            - dhl
+            - amazon
+            - ontrac
+            - canada_post
+            - royal_mail
+            - australia_post
+            - deutsche_post
+            - la_poste
+            - japan_post
+            - china_post
+            - india_post
+            - postnl
+            - intl_post
+            - unknown
+    description:
+      example: "New headphones"
+      selector:
+        text:
+    vendor:
+      example: "Example Store"
+      selector:
+        text:
+    notes:
+      selector:
+        text:
+          multiline: true
+    expected_date:
+      example: "2026-10-14"
+      selector:
+        date:
+    expected_date_end:
+      example: "2026-10-16"
+      selector:
+        date:
+    tracking_url:
+      example: "https://example.com/track/123"
+      selector:
+        text:
+          type: url
+
+update_package:
+  fields:
+    package_id:
+      example: "01JABCDEF0123456789ABCDEFG"
+      selector:
+        text:
+    tracking_number:
+      example: "1Z999AA10123456784"
+      selector:
+        text:
+    carrier:
+      selector:
+        select:
+          translation_key: carrier
+          mode: dropdown
+          options:
+            - auto
+            - ups
+            - usps
+            - fedex
+            - dhl
+            - amazon
+            - ontrac
+            - canada_post
+            - royal_mail
+            - australia_post
+            - deutsche_post
+            - la_poste
+            - japan_post
+            - china_post
+            - india_post
+            - postnl
+            - intl_post
+            - unknown
+    description:
+      example: "New headphones"
+      selector:
+        text:
+    vendor:
+      example: "Example Store"
+      selector:
+        text:
+    notes:
+      selector:
+        text:
+          multiline: true
+    expected_date:
+      example: "2026-10-14"
+      selector:
+        date:
+    expected_date_end:
+      example: "2026-10-16"
+      selector:
+        date:
+    tracking_url:
+      example: "https://example.com/track/123"
+      selector:
+        text:
+          type: url
+
+mark_arrived:
+  fields:
+    package_id:
+      example: "01JABCDEF0123456789ABCDEFG"
+      selector:
+        text:
+    tracking_number:
+      example: "1Z999AA10123456784"
+      selector:
+        text:
+    arrived:
+      default: true
+      selector:
+        boolean:
+
+archive_package:
+  fields:
+    package_id:
+      example: "01JABCDEF0123456789ABCDEFG"
+      selector:
+        text:
+    tracking_number:
+      example: "1Z999AA10123456784"
+      selector:
+        text:
+
+restore_package:
+  fields:
+    package_id:
+      example: "01JABCDEF0123456789ABCDEFG"
+      selector:
+        text:
+    tracking_number:
+      example: "1Z999AA10123456784"
+      selector:
+        text:
+
+remove_package:
+  fields:
+    package_id:
+      example: "01JABCDEF0123456789ABCDEFG"
+      selector:
+        text:
+    tracking_number:
+      example: "1Z999AA10123456784"
+      selector:
+        text:
+
+extract_tracking_numbers:
+  fields:
+    text:
+      required: true
+      example: "Your UPS tracking number is 1Z999AA10123456784"
+      selector:
+        text:
+          multiline: true

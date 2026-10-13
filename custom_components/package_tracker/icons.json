@@ -1,0 +1,46 @@
+{
+  "entity": {
+    "sensor": {
+      "active": {
+        "default": "mdi:package-variant-closed"
+      },
+      "overdue": {
+        "default": "mdi:package-variant-closed-remove"
+      },
+      "due_today": {
+        "default": "mdi:truck-delivery"
+      },
+      "next_delivery": {
+        "default": "mdi:calendar-arrow-right"
+      }
+    },
+    "calendar": {
+      "deliveries": {
+        "default": "mdi:calendar-clock"
+      }
+    }
+  },
+  "services": {
+    "add_package": {
+      "service": "mdi:package-variant-plus"
+    },
+    "update_package": {
+      "service": "mdi:package-variant-closed-check"
+    },
+    "mark_arrived": {
+      "service": "mdi:package-check"
+    },
+    "archive_package": {
+      "service": "mdi:archive-arrow-down"
+    },
+    "restore_package": {
+      "service": "mdi:archive-arrow-up"
+    },
+    "remove_package": {
+      "service": "mdi:package-variant-remove"
+    },
+    "extract_tracking_numbers": {
+      "service": "mdi:text-search"
+    }
+  }
+}
